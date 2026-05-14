@@ -1,0 +1,30 @@
+version: "3.9"
+
+services:
+  rtl_tcp:
+    build: ./rtl-sdr
+    devices:
+      - /dev/bus/usb:/dev/bus/usb
+    ports:
+      - "1234:1234"
+
+  direwolf:
+    build: ./direwolf
+    environment:
+      TZ: Europe/Paris
+      CUSTOM_CONFIG: /etc/direwolf/direwolf.conf
+    volumes:
+      - ./direwolf/direwolf.conf:/etc/direwolf/direwolf.conf:ro
+    devices:
+      - /dev/snd:/dev/snd
+    ports:
+      - "8001:8001"
+    depends_on:
+      - rtl_tcp
+
+  aprx:
+    build: ./aprx
+    volumes:
+      - ./aprx/aprx.conf:/etc/aprx.conf:ro
+    depends_on:
+      - direwolf
